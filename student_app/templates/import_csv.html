@@ -1,0 +1,16 @@
+<!-- templates/student_app/import_csv.html -->
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-3">📥 Import Students from CSV</h2>
+<form method="post" enctype="multipart/form-data" class="mb-4">
+  {% csrf_token %}
+  <input type="file" name="csv_file" accept=".csv" class="form-control mb-3" required>
+  <button type="submit" class="btn btn-primary">Upload CSV</button>
+</form>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,74 @@
+
+==============================
+🚀 Django Deployment Guide (PythonAnywhere)
+==============================
+
+🔹 Project: Student Management System
+🔹 Deployed Username: Bhargav2005
+🔹 Live Link: https://Bhargav2005.pythonanywhere.com/
+
+------------------------------
+✅ Step 1: Upload Project to PythonAnywhere
+------------------------------
+1. Login to https://www.pythonanywhere.com/
+2. Go to the "Files" tab
+3. Upload this ZIP file and extract it under: `/home/Bhargav2005/`
+   Example final path: `/home/Bhargav2005/student_project/`
+
+------------------------------
+✅ Step 2: Set Up Virtual Environment
+------------------------------
+1. Open the "Consoles" tab → Start a **Bash** console
+2. Create a virtualenv:
+   ```bash
+   python3.10 -m venv venv
+   source venv/bin/activate
+   pip install -r student_project/requirements.txt
+   ```
+
+------------------------------
+✅ Step 3: Set Up Web App on PythonAnywhere
+------------------------------
+1. Go to "Web" tab → Click "Add a new web app"
+2. Select: Manual Configuration → Python 3.10
+3. Set the source code path to:
+   `/home/Bhargav2005/student_project/`
+4. Set the WSGI file path to:
+   `/var/www/Bhargav2005_pythonanywhere_com_wsgi.py`
+
+------------------------------
+✅ Step 4: Configure WSGI File
+------------------------------
+In your WSGI file, add this at the bottom:
+```python
+import sys
+path = "/home/Bhargav2005/student_project"
+if path not in sys.path:
+    sys.path.insert(0, path)
+
+from django.core.wsgi import get_wsgi_application
+os.environ["DJANGO_SETTINGS_MODULE"] = "student_project.settings"
+application = get_wsgi_application()
+```
+
+------------------------------
+✅ Step 5: Django Setup (Console)
+------------------------------
+From the Bash console (while in venv):
+```bash
+cd student_project
+python manage.py migrate
+python manage.py collectstatic --noinput
+```
+
+------------------------------
+✅ Step 6: Reload App
+------------------------------
+1. Go to the "Web" tab
+2. Click the **Reload** button
+
+------------------------------
+✅ Done! Your app should now be live at:
+🔗 https://Bhargav2005.pythonanywhere.com/
+
+Need help? Just ask in ChatGPT.
