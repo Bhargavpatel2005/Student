@@ -8,13 +8,16 @@ from django.db.models import Q
 import io
 
 def student_list(request):
-    query = request.GET.get('q', '')
+    query = request.GET.get('search', '')
     if query:
         students = Student.objects.filter(
             Q(name__icontains=query) | Q(email__icontains=query)
         )
     else:
         students = Student.objects.all()
+
+    if request.headers.get('HX-Request'):
+        return render(request, 'student_table.html', {'students': students})
 
     return render(request, 'student_list.html', {'students': students, 'query': query})
 
@@ -68,27 +71,17 @@ def import_csv(request):
             if not csv_file.name.endswith('.csv'):
                 messages.error(request, 'Only CSV files are allowed.')
                 return redirect('import_csv')
-
-            decoded_file = csv_file.read().decode('utf-8')
-            io_string = io.StringIO(decoded_file)
-            next(io_string)  # Skip header
-
-            for row in csv.reader(io_string, delimiter=','):
-                Student.objects.create(
-                    name=row[0],
-                    age=row[1],
-                    email=row[2],
-                    grade=row[3]
-                )
-
+            decoded = csv_file.read().decode('utf-8')
+            reader = csv.reader(io.StringIO(decoded))
+            next(reader)
+            for row in reader:
+                Student.objects.create(name=row[0], email=row[1], age=row[2], grade=row[3])
             messages.success(request, 'Students imported successfully!')
             return redirect('student_list')
-
         except Exception as e:
-            messages.error(request, f'Error: {str(e)}')
+            messages.error(request, f'Error: {e}')
             return redirect('import_csv')
-
-    return render(request, 'import_csv.html')
+    return render(request, 'student_app/import_csv.html')
 
 def dashboard(request):
     total_students = Student.objects.count()
