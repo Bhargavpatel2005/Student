@@ -10,18 +10,25 @@ from django.core.paginator import Paginator
 
 def student_list(request):
     query = request.GET.get('search', '')
-    students = Student.objects.filter(
-        Q(name__icontains=query) | Q(email__icontains=query)
-    ) if query else Student.objects.all()
+    per_page = request.GET.get('per_page', 10)
 
-    paginator = Paginator(students, 5)
-    page_number = request.GET.get("page")
+    students = Student.objects.all()
+    if query:
+        students = students.filter(Q(name__icontains=query) | Q(email__icontains=query))
+
+    paginator = Paginator(students, per_page)
+    page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    if request.headers.get('HX-Request'):
-        return render(request, 'student_table.html', {'page_obj': page_obj})
+    context = {
+        'page_obj': page_obj,
+        'query': query,
+        'per_page': per_page,
+    }
 
-    return render(request, 'student_list.html', {'page_obj': page_obj, 'query': query})
+    if request.htmx:
+        return render(request, 'student_table.html', context)
+    return render(request, 'student_list.html', context)
 
 def student_create(request):
     if request.method == 'POST':
